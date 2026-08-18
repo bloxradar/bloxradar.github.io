@@ -1,0 +1,524 @@
+<title>Blox Radar</title>
+<style>
+  :root {
+    --bg: #eef1f6;
+    --surface: #ffffff;
+    --surface-2: #e4e9f1;
+    --ink: #1b2534;
+    --ink-2: #55617a;
+    --ink-3: #8b95ab;
+    --line: #d7dde8;
+    --accent: #d92d20;
+    --accent-ink: #ffffff;
+    --live: #12805c;
+    --live-bg: #d9f0e5;
+    --star: #dd9a00;
+    --code-bg: #1b2534;
+    --code-ink: #aef2d0;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 4px 14px rgba(16, 24, 40, .05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12161d;
+      --surface: #1a2029;
+      --surface-2: #232b37;
+      --ink: #e9edf4;
+      --ink-2: #a6b0c3;
+      --ink-3: #6d7789;
+      --line: #2b3442;
+      --accent: #f0483b;
+      --accent-ink: #ffffff;
+      --live: #4fd6a2;
+      --live-bg: #17352b;
+      --star: #f5c542;
+      --code-bg: #0c1117;
+      --code-ink: #8ff0c0;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .3);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12161d;
+    --surface: #1a2029;
+    --surface-2: #232b37;
+    --ink: #e9edf4;
+    --ink-2: #a6b0c3;
+    --ink-3: #6d7789;
+    --line: #2b3442;
+    --accent: #f0483b;
+    --accent-ink: #ffffff;
+    --live: #4fd6a2;
+    --live-bg: #17352b;
+    --star: #f5c542;
+    --code-bg: #0c1117;
+    --code-ink: #8ff0c0;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .4), 0 4px 14px rgba(0, 0, 0, .3);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "Segoe UI", "Pretendard Variable", Pretendard, "Apple SD Gothic Neo", sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 80px; }
+
+  /* ---------- header ---------- */
+  header.site { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 20px; padding: 16px 0 20px; }
+  .logo { display: flex; align-items: center; gap: 12px; }
+  .logo-block {
+    width: 44px; height: 44px; border-radius: 10px;
+    background: var(--accent); color: var(--accent-ink);
+    display: grid; place-items: center;
+    font-weight: 900; font-size: 22px;
+    box-shadow: var(--shadow);
+  }
+  .logo h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: -.02em; }
+  .logo p { margin: 2px 0 0; font-size: 13px; color: var(--ink-2); }
+  .stamp { margin-left: auto; text-align: right; font-size: 12px; color: var(--ink-3); }
+  .stamp b { color: var(--ink-2); font-weight: 600; }
+  .stamp .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--live); margin-right: 5px; }
+
+  /* ---------- toolbar: tabs + search ---------- */
+  .toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 14px; }
+  nav.tabs { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tab {
+    appearance: none; border: 1px solid var(--line); background: var(--surface);
+    color: var(--ink-2); font: inherit; font-weight: 700; font-size: 14px;
+    padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  }
+  .tab:hover { color: var(--ink); }
+  .tab:focus-visible, .row-head:focus-visible, .star:focus-visible, .codechip:focus-visible, a:focus-visible, .search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tab[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
+  .tab .n { font-weight: 400; opacity: .65; margin-left: 4px; font-size: 12px; }
+  .search { flex: 1; min-width: 180px; max-width: 280px; margin-left: auto; }
+  .search input {
+    width: 100%; font: inherit; font-size: 14px; color: var(--ink);
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 8px 16px; outline: none;
+  }
+  .search input::placeholder { color: var(--ink-3); }
+
+  #status { font-size: 12px; color: var(--ink-3); margin: 0 0 10px; }
+
+  /* ---------- chart list ---------- */
+  ol.chart { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  li.row {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    box-shadow: var(--shadow); overflow: hidden;
+  }
+  li.empty {
+    text-align: center; padding: 32px 16px; color: var(--ink-3); font-size: 14px;
+    background: var(--surface); border: 1px dashed var(--line); border-radius: 14px;
+  }
+  li.more { text-align: center; padding: 10px 16px 4px; color: var(--ink-3); font-size: 12.5px; }
+  li.more a { color: var(--ink-2); font-weight: 600; }
+  .row-head {
+    display: grid; grid-template-columns: 24px 30px 56px 1fr auto 16px; gap: 10px;
+    align-items: center; padding: 10px 12px 10px 8px; cursor: pointer;
+  }
+  .star {
+    appearance: none; background: none; border: none; cursor: pointer;
+    font-size: 17px; line-height: 1; padding: 4px 2px;
+    color: var(--ink-3); opacity: .4;
+  }
+  .star:hover { opacity: .8; }
+  .star.on { color: var(--star); opacity: 1; }
+  .rank { font-size: 17px; font-weight: 900; text-align: center; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  li.row:nth-child(-n+3) .rank.top { color: var(--accent); }
+  .row-head img { width: 56px; height: 56px; border-radius: 12px; display: block; background: var(--surface-2); }
+  .g-main { min-width: 0; }
+  .g-name { font-weight: 800; font-size: 15px; letter-spacing: -.01em; }
+  .codes-flag {
+    display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .04em;
+    color: var(--live); background: var(--live-bg); border-radius: 6px;
+    padding: 1px 6px; margin-left: 7px; vertical-align: 2px;
+  }
+  .g-sub { font-size: 12px; color: var(--ink-3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .g-sub .genre { color: var(--ink-2); font-weight: 600; }
+  .g-stats { text-align: right; font-variant-numeric: tabular-nums; }
+  .g-playing { font-weight: 800; font-size: 15px; }
+  .g-playing .unit { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .g-rating { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+  .g-rating.hot { color: var(--live); font-weight: 600; }
+  .g-buzz { font-size: 11px; font-weight: 700; color: var(--ink-3); margin-top: 2px; }
+  .g-buzz.up { color: var(--live); }
+  .g-buzz.down { color: var(--accent); }
+  .chev { color: var(--ink-3); font-size: 11px; text-align: center; transition: transform .15s ease; }
+  li.open .chev { transform: rotate(180deg); }
+  @media (prefers-reduced-motion: reduce) { .chev, #toast { transition: none; } }
+
+  /* ---------- expanded panel ---------- */
+  .row-panel {
+    display: none; flex-direction: column; gap: 10px;
+    border-top: 1px dashed var(--line);
+    padding: 14px 16px 16px;
+  }
+  li.open .row-panel { display: flex; }
+  .panel-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-play {
+    background: var(--accent); color: var(--accent-ink);
+    font-weight: 700; font-size: 13px; padding: 7px 14px;
+    border-radius: 8px; text-decoration: none;
+  }
+  .btn-page {
+    border: 1px solid var(--line); color: var(--ink-2);
+    font-weight: 700; font-size: 13px; padding: 7px 14px;
+    border-radius: 8px; text-decoration: none;
+  }
+  .btn-page:hover { color: var(--ink); }
+  .codelist { display: flex; flex-direction: column; gap: 6px; }
+  .codeline { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .codechip {
+    appearance: none; border: none; cursor: pointer;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    font-size: 13.5px; font-weight: 600; letter-spacing: .03em;
+    background: var(--code-bg); color: var(--code-ink);
+    padding: 6px 12px; border-radius: 8px;
+  }
+  .codechip:hover { filter: brightness(1.2); }
+  .codechip.dead {
+    background: transparent; border: 1px dashed var(--line); color: var(--ink-3);
+    text-decoration: line-through; cursor: default; padding: 5px 11px; font-size: 12.5px;
+  }
+  .codechip.dead:hover { filter: none; }
+  details.exp summary { cursor: pointer; font-size: 12px; font-weight: 600; color: var(--ink-3); }
+  details.exp summary:hover { color: var(--ink-2); }
+  details.exp .explist { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .codereward { font-size: 13px; color: var(--ink-2); }
+  .how { margin: 0; font-size: 12.5px; color: var(--ink-3); }
+  .how b { color: var(--ink-2); font-weight: 600; }
+  .src { margin: 0; font-size: 12px; color: var(--ink-3); }
+  .src a { color: var(--ink-2); }
+
+  /* ---------- footer ---------- */
+  .about { margin-top: 44px; border-top: 1px solid var(--line); padding-top: 20px; font-size: 12.5px; color: var(--ink-3); max-width: 68ch; }
+  .about p { margin: 0 0 8px; }
+  .about b { color: var(--ink-2); font-weight: 600; }
+
+  /* ---------- toast ---------- */
+  #toast {
+    position: fixed; left: 50%; bottom: 28px; transform: translateX(-50%) translateY(16px);
+    background: var(--ink); color: var(--bg); font-size: 13px; font-weight: 700;
+    padding: 9px 18px; border-radius: 999px; opacity: 0; pointer-events: none;
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 560px) {
+    .row-head { grid-template-columns: 20px 24px 44px 1fr auto 12px; gap: 7px; padding: 8px 10px 8px 6px; }
+    .row-head img { width: 44px; height: 44px; border-radius: 10px; }
+    .g-name { font-size: 14px; }
+    .rank { font-size: 15px; }
+    .stamp { margin-left: 0; text-align: left; }
+    .search { max-width: none; }
+    .row-panel { padding: 12px 12px 14px; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="site">
+    <div class="logo">
+      <div class="logo-block">B</div>
+      <div>
+        <h1>Blox Radar</h1>
+        <p>Roblox trending charts · working codes</p>
+      </div>
+    </div>
+    <div class="stamp">
+      <span class="dot"></span>Data from <b id="stamp-time"></b><br>
+      Global · PC charts · refreshes on republish
+    </div>
+  </header>
+
+  <div class="toolbar">
+    <nav class="tabs" role="tablist" aria-label="Chart type" id="tabs"></nav>
+    <div class="search">
+      <input id="q" type="search" placeholder="Search games…" aria-label="Search games">
+    </div>
+  </div>
+
+  <p id="status" hidden></p>
+  <ol class="chart" id="chart"></ol>
+
+  <section class="about">
+    <p><b>Tap any game</b> to expand it — you'll find its working codes (tap a code to copy), how to redeem them, and a link to play. The ★ saves a game to your Favorites tab; favorites are stored in your browser only.</p>
+    <p><b>How this page updates:</b> chart data (rankings, live player counts, ratings) comes from every discovery row Roblox exposes — the five main charts plus genre trending, top earning, top rated, and most popular rows; games beyond the main charts (down to 500 concurrent players) feed the All Games tab and search. Codes are gathered from gaming outlets that verify them. Everything is baked in at publish time — the page refreshes each time it is republished.</p>
+    <p><b>Search Buzz</b> is measured from Google Trends: for each top chart game, its search interest over the last 24 hours is compared with its own 7-day average, so the numbers show momentum on the wider internet — not just inside Roblox.</p>
+    <p><b>Watchlist:</b> games that never reach the discovery charts can still be tracked by hand — they show up in All Games, search, and Favorites like any other game. Ask for a game to be added and it stays tracked from the next refresh on.</p>
+    <p><b>If a code doesn't work:</b> codes are often case-sensitive and can expire within hours. Paste them exactly into the game's code box; if it still fails, check the game's official Discord.</p>
+    <p>Unofficial fan page. Not affiliated with Roblox Corporation; game names and icons belong to their respective creators.</p>
+  </section>
+</div>
+
+<div id="toast" role="status">Copied</div>
+
+<script>
+  const DATA = /*__DATA__*/;
+
+  const CODES = /*__CODES__*/;
+
+  const SORTS = [
+    { key: "trending", label: "Trending" },
+    { key: "playing", label: "Most Played" },
+    { key: "rising", label: "Up & Coming" },
+    { key: "all", label: "All Games" },
+    { key: "buzz", label: "Search Buzz" },
+    { key: "favs", label: "★ Favorites" }
+  ];
+  const BUZZ = DATA.buzz || {};
+
+  const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
+  /* fold styled unicode (ＦＵＬＬ, 𝐁𝐈𝐆), strip accents (piñata→pinata) and
+     punctuation, keep Hangul so Korean titles are searchable */
+  const COMBINING_MARKS = new RegExp("[\\u0300-\\u036f]", "g");
+  /* NFKD folds styled Latin & splits accents; NFC then recomposes Hangul
+     syllables that NFKD broke into jamo */
+  const norm = s => String(s).normalize("NFKD").replace(COMBINING_MARKS, "").normalize("NFC")
+    .toLowerCase().replace(/[^a-z0-9가-힣]+/g, " ").trim();
+  const fmtN = n => {
+    if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
+    if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "K";
+    return String(n);
+  };
+  const gameUrl = g => "https://www.roblox.com/games/" + g.place;
+  /* single-word matches must equal the whole (normalized) game name so
+     "RIVALS" doesn't hit "Blue Lock: Rivals"; multi-word matches need a
+     word-boundary substring */
+  const codeEntry = name => {
+    const n = norm(name);
+    return CODES.find(c => {
+      const m = norm(c.match);
+      return m.includes(" ") ? (" " + n + " ").includes(" " + m + " ") : n === m;
+    });
+  };
+
+  /* favorites (persisted in the viewer's browser when allowed) */
+  let favs = new Set();
+  try { favs = new Set(JSON.parse(localStorage.getItem("bloxradar-favs") || "[]")); } catch (_) {}
+  const saveFavs = () => { try { localStorage.setItem("bloxradar-favs", JSON.stringify([...favs])); } catch (_) {} };
+
+  /* unified game index (deduped across every collected chart, incl. Fun with
+     Friends and Top Revisited, which have no tab of their own) */
+  const ALL = new Map();
+  Object.keys(DATA.sorts).forEach(k =>
+    DATA.sorts[k].forEach(g => { if (!ALL.has(String(g.u))) ALL.set(String(g.u), g); }));
+
+  /* extra search aliases — old names and common alternate spellings */
+  const ALIASES = {
+    "2644656496": "haze piece hazepiece"
+  };
+
+  /* search index: English name + Korean localized name + aliases + creator +
+     genre, plus a no-space form of the names so "bloxfruits" matches too */
+  const SIDX = new Map();
+  ALL.forEach((g, id) => {
+    const d = DATA.details[id] || {};
+    const names = g.name + " " + (d.kn || "") + " " + (ALIASES[id] || "");
+    const base = norm(names + " " + (d.creator || "") + " " + (g.genre || ""));
+    SIDX.set(id, base + " " + norm(names).replace(/ /g, ""));
+  });
+
+  let current = "trending", query = "";
+
+  document.getElementById("stamp-time").textContent =
+    new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(DATA.fetchedAt));
+
+  /* tabs */
+  const tabsEl = document.getElementById("tabs");
+  const tabCount = k => k === "favs" ? favs.size : k === "all" ? ALL.size : k === "buzz" ? Object.keys(BUZZ).length : DATA.sorts[k].length;
+  SORTS.forEach(s => {
+    if (s.key === "buzz" && !Object.keys(BUZZ).length) return;
+    const b = document.createElement("button");
+    b.className = "tab"; b.setAttribute("role", "tab"); b.dataset.key = s.key;
+    b.innerHTML = esc(s.label) + '<span class="n" data-count="' + s.key + '">' + tabCount(s.key) + "</span>";
+    b.addEventListener("click", () => {
+      current = s.key; query = "";
+      document.getElementById("q").value = "";
+      render();
+    });
+    tabsEl.appendChild(b);
+  });
+  const favCountEl = tabsEl.querySelector('[data-count="favs"]');
+
+  /* search */
+  document.getElementById("q").addEventListener("input", e => {
+    query = e.target.value.trim();
+    render();
+  });
+
+  const buzzPct = m => Math.round((m - 1) * 100);
+  const buzzPill = m => {
+    const pct = buzzPct(m);
+    if (pct >= 15) return '<div class="g-buzz up">▲ +' + pct + "% search</div>";
+    if (pct <= -15) return '<div class="g-buzz down">▼ ' + pct + "% search</div>";
+    return '<div class="g-buzz">≈ search flat</div>';
+  };
+
+  function panelHtml(g) {
+    const ce = codeEntry(g.name);
+    const slug = (DATA.slugs || {})[g.u];
+    let inner = '<div class="panel-actions">'
+      + '<a class="btn-play" href="' + gameUrl(g) + '" target="_blank" rel="noopener">Play on Roblox ↗</a>'
+      + (slug ? '<a class="btn-page" href="games/' + slug + '/">Full codes &amp; stats page</a>' : "")
+      + "</div>";
+    const bz = BUZZ[g.u];
+    if (bz) {
+      const pct = buzzPct(bz.m);
+      inner += '<p class="how"><b>Google search interest:</b> '
+        + (pct >= 15 ? "up " + pct + "%" : pct <= -15 ? "down " + Math.abs(pct) + "%" : "steady")
+        + " in the last 24 hours vs this game’s 7-day average.</p>";
+    }
+    if (ce && ce.status === "live") {
+      inner += '<div class="codelist">' + ce.codes.map(x =>
+        '<div class="codeline"><button class="codechip" data-code="' + esc(x.c) + '">' + esc(x.c) + "</button>"
+        + '<span class="codereward">' + esc(x.r) + "</span></div>").join("") + "</div>";
+      if (ce.how) inner += '<p class="how">' + ce.how + "</p>";
+      if (ce.expired && ce.expired.length) {
+        inner += '<details class="exp"><summary>Expired codes (' + ce.expired.length + ") — no longer redeemable</summary>"
+          + '<div class="explist">' + ce.expired.map(x => '<span class="codechip dead">' + esc(x) + "</span>").join("") + "</div></details>";
+      }
+    } else if (ce) {
+      inner += '<p class="how">' + esc(ce.note) + "</p>";
+    } else {
+      inner += '<p class="how">No verified codes tracked for this game yet — new codes usually drop on the developer’s Discord or X.</p>';
+    }
+    if (ce && ce.src.length) {
+      inner += '<p class="src">Sources: ' + ce.src.map(s =>
+        '<a href="' + s[1] + '" target="_blank" rel="noopener">' + esc(s[0]) + "</a>").join(" · ") + "</p>";
+    }
+    return '<div class="row-panel">' + inner + "</div>";
+  }
+
+  function rowHtml(g, i, showRank) {
+    const id = String(g.u);
+    const d = DATA.details[g.u] || {};
+    const icon = DATA.icons[g.u] || "";
+    const ce = codeEntry(g.name);
+    const live = ce && ce.status === "live";
+    const total = g.up + g.down;
+    const pct = total ? Math.round(g.up / total * 100) : null;
+    const isFav = favs.has(id);
+    return '<li class="row" data-u="' + id + '">'
+      + '<div class="row-head" role="button" tabindex="0" aria-expanded="false">'
+      + '<button class="star' + (isFav ? " on" : "") + '" data-star="' + id + '" aria-pressed="' + isFav + '" aria-label="Toggle favorite">★</button>'
+      + '<div class="rank' + (showRank ? " top" : "") + '">' + (showRank ? i + 1 : "·") + "</div>"
+      + (icon ? '<img src="' + icon + '" alt="" loading="lazy">' : "<div></div>")
+      + '<div class="g-main"><div class="g-name">' + esc(g.name)
+      + (live ? '<span class="codes-flag">CODES</span>' : "") + "</div>"
+      + '<div class="g-sub"><span class="genre">' + esc(g.genre || "Other") + "</span>"
+      + (d.creator ? " · " + esc(d.creator) : "")
+      + (d.visits ? " · " + fmtN(d.visits) + " visits" : "") + "</div></div>"
+      + '<div class="g-stats"><div class="g-playing">' + fmtN(g.playing) + '<span class="unit"> playing</span></div>'
+      + (pct !== null ? '<div class="g-rating' + (pct >= 90 ? " hot" : "") + '">👍 ' + pct + "%</div>" : "")
+      + (BUZZ[g.u] ? buzzPill(BUZZ[g.u].m) : "")
+      + '</div><div class="chev">▾</div></div>'
+      + panelHtml(g) + "</li>";
+  }
+
+  function currentList() {
+    if (query) {
+      const toks = norm(query).split(" ").filter(Boolean);
+      const list = [...ALL.values()].filter(g => {
+        const s = SIDX.get(String(g.u)) || "";
+        return toks.length && toks.every(t => s.includes(t));
+      }).sort((a, b) => b.playing - a.playing);
+      return { list, showRank: false, status: "Matches across all charts, sorted by players" };
+    }
+    if (current === "favs") {
+      const list = [...ALL.values()].filter(g => favs.has(String(g.u))).sort((a, b) => b.playing - a.playing);
+      return { list, showRank: false, status: "" };
+    }
+    if (current === "all") {
+      const list = [...ALL.values()].sort((a, b) => b.playing - a.playing);
+      return { list, showRank: true, status: "Every game Roblox's discovery rows expose right now — main charts, genre trending, top earning/rated/popular (500+ players) — plus watchlisted games, sorted by players" };
+    }
+    if (current === "buzz") {
+      const list = [...ALL.values()].filter(g => BUZZ[g.u]).sort((a, b) => BUZZ[b.u].m - BUZZ[a.u].m);
+      return { list, showRank: false, status: "Google search interest, last 24h vs each game's own 7-day average — measured for the top chart games" };
+    }
+    return { list: DATA.sorts[current], showRank: true, status: "" };
+  }
+
+  function render() {
+    tabsEl.querySelectorAll(".tab").forEach(b => b.setAttribute("aria-selected", !query && b.dataset.key === current));
+    favCountEl.textContent = favs.size;
+    const { list, showRank, status } = currentList();
+    const st = document.getElementById("status");
+    st.textContent = status; st.hidden = !status;
+    const ol = document.getElementById("chart");
+    /* when searching, always offer Roblox's own full search as a way out —
+       this page only tracks the games on the discovery charts */
+    const more = query
+      ? '<li class="more">Only the ' + ALL.size + ' games on Roblox’s discovery charts are tracked here. '
+        + '<a href="https://www.roblox.com/search/games?keyword=' + encodeURIComponent(query) + '" target="_blank" rel="noopener">Search all of Roblox for “' + esc(query) + '” ↗</a></li>'
+      : "";
+    if (!list.length) {
+      ol.innerHTML = '<li class="empty">' + (query
+        ? "No games match “" + esc(query) + "” on the charts."
+        : "No favorites yet — tap the ★ on any game to save it here.") + "</li>" + more;
+      return;
+    }
+    ol.innerHTML = list.map((g, i) => rowHtml(g, i, showRank)).join("") + more;
+  }
+  render();
+
+  /* interactions (delegated) */
+  const toast = document.getElementById("toast");
+  let toastTimer;
+  const showToast = msg => {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toast.classList.remove("show"), 1600);
+  };
+
+  const chartEl = document.getElementById("chart");
+  chartEl.addEventListener("click", async e => {
+    const star = e.target.closest(".star");
+    if (star) {
+      e.stopPropagation();
+      const id = star.dataset.star;
+      if (favs.has(id)) favs.delete(id); else favs.add(id);
+      saveFavs();
+      star.classList.toggle("on", favs.has(id));
+      star.setAttribute("aria-pressed", favs.has(id));
+      favCountEl.textContent = favs.size;
+      if (current === "favs" && !query) render();
+      return;
+    }
+    const chip = e.target.closest(".codechip");
+    if (chip) {
+      const code = chip.dataset.code;
+      if (!code) return; /* expired chips are display-only */
+      let ok = false;
+      try { await navigator.clipboard.writeText(code); ok = true; } catch (_) {
+        const ta = document.createElement("textarea");
+        ta.value = code; document.body.appendChild(ta); ta.select();
+        try { ok = document.execCommand("copy"); } catch (_) {}
+        ta.remove();
+      }
+      showToast(ok ? "Copied " + code : "Copy failed — select it manually");
+      return;
+    }
+    if (e.target.closest("a")) return;
+    const head = e.target.closest(".row-head");
+    if (head) {
+      const li = head.closest("li");
+      li.classList.toggle("open");
+      head.setAttribute("aria-expanded", li.classList.contains("open"));
+    }
+  });
+  chartEl.addEventListener("keydown", e => {
+    if (e.key !== "Enter" && e.key !== " ") return;
+    const head = e.target.closest(".row-head");
+    if (!head || e.target !== head) return;
+    e.preventDefault();
+    const li = head.closest("li");
+    li.classList.toggle("open");
+    head.setAttribute("aria-expanded", li.classList.contains("open"));
+  });
+</script>

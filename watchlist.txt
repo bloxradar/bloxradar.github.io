@@ -1,0 +1,4 @@
+# BloxRadar 워치리스트 — 차트에 없어도 매일 추적할 게임의 universeId.
+# 한 줄에 하나, # 뒤는 메모. 게임 추가를 원하면 Claude에게 게임 이름을 말하면 된다.
+2644656496  # Haze Seas (구 Haze Piece)
+9186719164  # Sailor Piece
