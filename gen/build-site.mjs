@@ -23,6 +23,11 @@ const ARTIFACT = process.argv.includes("--artifact");
 const SKIP_BUZZ = process.argv.includes("--skip-buzz");
 const OUT = path.join(ROOT, ARTIFACT ? "dist-artifact" : "dist");
 const SITE_BASE = (process.env.SITE_BASE || "").replace(/\/$/, "");
+const SITE_CFG = (() => {
+  try { return JSON.parse(fs.readFileSync(path.join(ROOT, "data", "site.json"), "utf8")); }
+  catch { return {}; }
+})();
+const FAVICON = `<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📡</text></svg>">`;
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36";
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -271,7 +276,10 @@ async function main() {
 
   fs.rmSync(OUT, { recursive: true, force: true });
   fs.mkdirSync(OUT, { recursive: true });
-  fs.writeFileSync(path.join(OUT, "index.html"), home);
+  /* artifact flavor stays a bare fragment (claude.ai wraps it); the web build
+     gets a proper document skeleton so browsers leave quirks mode and search
+     engines see real head metadata */
+  fs.writeFileSync(path.join(OUT, "index.html"), ARTIFACT ? home : webWrapHome(home));
 
   if (ARTIFACT) {
     console.log(`done: ${path.join(OUT, "index.html")}`);
@@ -309,6 +317,27 @@ async function main() {
     `User-agent: *\nAllow: /\n${SITE_BASE ? `Sitemap: ${SITE_BASE}/sitemap.xml\n` : ""}`);
   fs.writeFileSync(path.join(OUT, ".nojekyll"), "");
   console.log(`done: ${OUT} (SITE_BASE=${SITE_BASE || "(unset)"})`);
+}
+
+function webWrapHome(fragment) {
+  const body = fragment.replace(/<title>[\s\S]*?<\/title>\s*/, "");
+  const desc = "Live Roblox trending charts, working codes checked daily, and search across every discovery chart — 500+ games tracked.";
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blox Radar — Roblox Trending Charts & Working Codes</title>
+${SITE_CFG.googleVerification ? `<meta name="google-site-verification" content="${esc(SITE_CFG.googleVerification)}">\n` : ""}<meta name="description" content="${esc(desc)}">
+${SITE_BASE ? `<link rel="canonical" href="${SITE_BASE}/">\n<meta property="og:url" content="${SITE_BASE}/">\n` : ""}<meta property="og:title" content="Blox Radar — Roblox Trending Charts & Working Codes">
+<meta property="og:description" content="${esc(desc)}">
+<meta property="og:type" content="website">
+${FAVICON}
+</head>
+<body>
+${body}
+</body>
+</html>`;
 }
 
 /* ---------------- per-game page template ---------------- */
@@ -385,6 +414,7 @@ ${canonical ? `<link rel="canonical" href="${canonical}">` : ""}
 <meta property="og:description" content="${esc(desc)}">
 ${icon ? `<meta property="og:image" content="${icon}">` : ""}
 <meta property="og:type" content="website">
+${FAVICON}
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 <style>
 :root{--bg:#eef1f6;--surface:#fff;--surface-2:#e4e9f1;--ink:#1b2534;--ink-2:#55617a;--ink-3:#8b95ab;--line:#d7dde8;--accent:#d92d20;--accent-ink:#fff;--live:#12805c;--live-bg:#d9f0e5;--code-bg:#1b2534;--code-ink:#aef2d0;--shadow:0 1px 2px rgba(16,24,40,.06),0 4px 14px rgba(16,24,40,.05)}
