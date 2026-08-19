@@ -269,6 +269,27 @@
     .search { max-width: none; }
     li.open .panel-inner { padding: 12px 12px 14px; }
   }
+
+  /* below ~430px the figures no longer fit beside the name: drop them to
+     their own line under it, keeping icon and controls in place */
+  @media (max-width: 430px) {
+    .row-head {
+      grid-template-columns: 20px 20px 44px minmax(0, 1fr) 12px;
+      grid-template-areas:
+        "star rank img main chev"
+        "star rank img stats chev";
+      row-gap: 3px;
+    }
+    .star { grid-area: star; }
+    .rank { grid-area: rank; }
+    .row-head img { grid-area: img; align-self: center; }
+    .g-main { grid-area: main; }
+    .g-stats { grid-area: stats; text-align: left; display: flex; align-items: baseline; gap: 4px 9px; flex-wrap: wrap; }
+    .g-playing { font-size: 14px; }
+    .g-rating, .g-buzz { margin-top: 0; }
+    .g-name { white-space: normal; }
+    .chev { grid-area: chev; }
+  }
 </style>
 
 <div class="wrap">
