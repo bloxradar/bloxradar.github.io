@@ -295,5 +295,139 @@
     "status": "none",
     "note": "Promo codes were retired years ago. Event rewards now come through in-game updates only.",
     "src": []
+  },
+  {
+    "match": "Tower of Hell",
+    "status": "live",
+    "codes": [
+      {
+        "c": "/freemember",
+        "r": "36-hour free membership (mutators, daily coin bonus)"
+      },
+      {
+        "c": "69",
+        "r": "\"Nice\" reward"
+      },
+      {
+        "c": "5KMILESTONE",
+        "r": "Minigunner unlock"
+      },
+      {
+        "c": "B1RDHUNT3R",
+        "r": "Hunter Tower"
+      },
+      {
+        "c": "DOUBLEBLOXIES",
+        "r": "Cowboy Skin"
+      },
+      {
+        "c": "ICYFREEZE",
+        "r": "IcyTea Freezer Skin"
+      }
+    ],
+    "how": "Open the <b>Chat</b> window (top-left corner), type the code exactly as shown (e.g. <b>/freemember</b> with the slash), and press Enter.",
+    "src": [
+      [
+        "Dexerto",
+        "https://www.dexerto.com/roblox/tower-of-hell-codes-3382350/"
+      ]
+    ]
+  },
+  {
+    "match": "Wonderland",
+    "status": "live",
+    "codes": [
+      {
+        "c": "RELEASE26",
+        "r": "100 Gems"
+      }
+    ],
+    "how": "<b>Shop</b> button on the left → <b>CODES</b> tab (top-right of the menu) → enter the code → Redeem.",
+    "src": [
+      [
+        "Dexerto",
+        "https://www.dexerto.com/roblox/wonderland-codes-3399186/"
+      ]
+    ]
+  },
+  {
+    "match": "Ghost Driver",
+    "status": "live",
+    "codes": [
+      {
+        "c": "THANKSFOR1MIL",
+        "r": "10,000 Cash"
+      },
+      {
+        "c": "SINCEROWASHERE",
+        "r": "10,000 Cash"
+      }
+    ],
+    "expired": [
+      "SORRYFORLATE"
+    ],
+    "how": "<b>Shop</b> button (bottom-left) → <b>Rewards/Codes</b> tab → enter the code → Redeem. Not case-sensitive.",
+    "src": [
+      [
+        "Pocket Tactics",
+        "https://www.pockettactics.com/ghost-driver-codes"
+      ]
+    ]
+  },
+  {
+    "match": "Grow a Chicken Fighter",
+    "status": "live",
+    "codes": [
+      {
+        "c": "EGGSCELLENT",
+        "r": "50 Cash + Thunder Egg"
+      },
+      {
+        "c": "40KCCU",
+        "r": "Blazing Egg"
+      },
+      {
+        "c": "LETMECOOK",
+        "r": "50 Cash + Thunder Egg + 30-min 2x Money buff"
+      },
+      {
+        "c": "SERGIOVERSE",
+        "r": "50 Cash + Scratch Egg + 30-min 2x Corn buff"
+      },
+      {
+        "c": "WELCOME",
+        "r": "50 Cash + Nest Egg"
+      }
+    ],
+    "how": "Click the ticket-shaped icon in the top-left of the screen → enter the code → Redeem.",
+    "src": [
+      [
+        "Pocket Tactics",
+        "https://www.pockettactics.com/grow-a-chicken-fighter-codes"
+      ]
+    ]
+  },
+  {
+    "match": "San Diego Border Roleplay",
+    "status": "live",
+    "codes": [
+      {
+        "c": "ElDiabloIsntGettingBuffed",
+        "r": "$10,000 Cash"
+      }
+    ],
+    "how": "Home icon (top-right) → <b>Rewards</b> panel → enter the code → Claim.",
+    "src": [
+      [
+        "GameRant",
+        "https://gamerant.com/san-diego-border-roleplay-codes-roblox/"
+      ]
+    ]
+  },
+  {
+    "match": "Clean all the leaves",
+    "status": "none",
+    "note": "No promo codes released yet by developer Muffin Interactive.",
+    "src": []
   }
 ]
