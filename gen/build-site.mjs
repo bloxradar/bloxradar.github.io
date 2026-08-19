@@ -306,8 +306,13 @@ async function main() {
   }
   console.log(`game pages: ${ALL.size}`);
 
+  /* ---- 10b. all-games index (crawlable entry point per genre) ---- */
+  fs.mkdirSync(path.join(OUT, "games"), { recursive: true });
+  fs.writeFileSync(path.join(OUT, "games", "index.html"),
+    indexPage(byGenre, { slugs, monthYear, updated, codeEntry, total: ALL.size }));
+
   /* ---- 11. sitemap + robots + .nojekyll ---- */
-  const urls = ["/", ...[...ALL.keys()].map(id => `/games/${slugs[id]}/`)];
+  const urls = ["/", "/games/", ...[...ALL.keys()].map(id => `/games/${slugs[id]}/`)];
   const lastmod = now.toISOString().slice(0, 10);
   fs.writeFileSync(path.join(OUT, "sitemap.xml"),
     `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`
@@ -319,8 +324,87 @@ async function main() {
   console.log(`done: ${OUT} (SITE_BASE=${SITE_BASE || "(unset)"})`);
 }
 
+/* ---------------- all-games index ---------------- */
+function indexPage(byGenre, ctx) {
+  const genres = Object.keys(byGenre).sort((a, b) =>
+    byGenre[b].reduce((s, g) => s + g.playerCount, 0) - byGenre[a].reduce((s, g) => s + g.playerCount, 0));
+  const desc = `Every Roblox game on the discovery charts — ${ctx.total} games by genre, with live player counts and working codes, refreshed daily.`;
+  const sections = genres.map(gen => {
+    const list = byGenre[gen];
+    return `<section><h2>${esc(gen)} <span class="cnt">${list.length}</span></h2><ul class="idx">`
+      + list.map(g => {
+        const ce = ctx.codeEntry(g.name);
+        const live = ce && ce.status === "live";
+        return `<li><a href="${ctx.slugs[String(g.universeId)]}/">${esc(cleanName(g.name) || g.name)}</a>`
+          + (live ? `<span class="cf">${ce.codes.length} codes</span>` : "")
+          + `<span class="pc">${fmtN(g.playerCount)}</span></li>`;
+      }).join("")
+      + `</ul></section>`;
+  }).join("");
+
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>All Roblox Games by Genre (${ctx.monthYear}) — Blox Radar</title>
+<meta name="description" content="${esc(desc)}">
+${SITE_BASE ? `<link rel="canonical" href="${SITE_BASE}/games/">` : ""}
+<meta property="og:title" content="All Roblox Games by Genre — Blox Radar">
+<meta property="og:description" content="${esc(desc)}">
+<meta property="og:type" content="website">
+${FAVICON}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
+<style>
+:root{--bg:#eef1f6;--surface:#fff;--ink:#1b2534;--ink-2:#55617a;--ink-3:#8b95ab;--line:#d7dde8;--accent:#d92d20;--accent-ink:#fff;--live:#12805c;--live-bg:#d9f0e5;--shadow:0 1px 2px rgba(16,24,40,.06),0 4px 14px rgba(16,24,40,.05);--display:"Bricolage Grotesque","Segoe UI",Pretendard,sans-serif}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161d;--surface:#1a2029;--ink:#e9edf4;--ink-2:#a6b0c3;--ink-3:#6d7789;--line:#2b3442;--accent:#f0483b;--live:#4fd6a2;--live-bg:#17352b;--shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3)}}
+:root[data-theme="dark"]{--bg:#12161d;--surface:#1a2029;--ink:#e9edf4;--ink-2:#a6b0c3;--ink-3:#6d7789;--line:#2b3442;--accent:#f0483b;--live:#4fd6a2;--live-bg:#17352b;--shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3)}
+*{box-sizing:border-box}
+html{scrollbar-width:thin;scrollbar-color:var(--ink-3) transparent}
+::selection{background:var(--accent);color:var(--accent-ink)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Pretendard,"Apple SD Gothic Neo",sans-serif;line-height:1.5}
+.wrap{max-width:880px;margin:0 auto;padding:20px 16px 60px}
+.top{display:flex;align-items:center;gap:11px;margin-bottom:20px}
+.top a{display:flex;align-items:center;gap:11px;color:inherit;text-decoration:none;font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.02em}
+.logo-block{width:36px;height:36px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:var(--shadow)}
+h1{font-family:var(--display);font-size:25px;font-weight:800;letter-spacing:-.02em;margin:0 0 4px;text-wrap:balance}
+.lede{color:var(--ink-2);font-size:14px;margin:0 0 6px;max-width:66ch}
+.upd{color:var(--ink-3);font-size:12.5px;margin:0 0 24px}
+section{margin-bottom:30px}
+h2{font-family:var(--display);font-size:17px;font-weight:800;letter-spacing:-.01em;margin:0 0 10px;display:flex;align-items:baseline;gap:8px}
+h2 .cnt{font-family:inherit;font-size:12px;font-weight:600;color:var(--ink-3)}
+ul.idx{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px}
+ul.idx li{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 12px;display:flex;align-items:center;gap:8px;transition:border-color .15s ease}
+ul.idx li:hover{border-color:var(--ink-3)}
+ul.idx a{color:inherit;text-decoration:none;font-weight:700;font-size:13.5px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+ul.idx a:hover{text-decoration:underline}
+.cf{font-size:10px;font-weight:800;letter-spacing:.04em;color:var(--live);background:var(--live-bg);border-radius:5px;padding:1px 6px;flex-shrink:0}
+.pc{margin-left:auto;color:var(--ink-3);font-size:12px;font-variant-numeric:tabular-nums;flex-shrink:0}
+a:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:6px}
+.foot{margin-top:36px;border-top:1px solid var(--line);padding-top:16px;font-size:12px;color:var(--ink-3);max-width:68ch}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a href="../"><span class="logo-block" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity=".45"/><circle cx="12" cy="12" r="5" opacity=".7"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><path d="M12 12L18.5 5.5"/><circle cx="16.4" cy="9" r="1.4" fill="currentColor" stroke="none"/></svg></span>Blox Radar</a></div>
+  <h1>All Roblox games by genre</h1>
+  <p class="lede">Every game currently on Roblox's discovery charts, grouped by genre and sorted by players. Each one has a page with its working codes and live stats.</p>
+  <p class="upd">${ctx.total} games · updated ${ctx.updated}</p>
+  ${sections}
+  <p class="foot">Unofficial fan site. Not affiliated with Roblox Corporation; game names belong to their respective creators.</p>
+</div>
+</body>
+</html>`;
+}
+
 function webWrapHome(fragment) {
-  const body = fragment.replace(/<title>[\s\S]*?<\/title>\s*/, "");
+  /* hoist the fragment's <link> tags (fonts) into the real head */
+  const links = fragment.match(/<link\b[^>]*>/g) || [];
+  const body = fragment
+    .replace(/<title>[\s\S]*?<\/title>\s*/, "")
+    .replace(/<link\b[^>]*>\s*/g, "");
   const desc = "Live Roblox trending charts, working codes checked daily, and search across every discovery chart — 500+ games tracked.";
   return `<!doctype html>
 <html lang="en">
@@ -333,6 +417,7 @@ ${SITE_BASE ? `<link rel="canonical" href="${SITE_BASE}/">\n<meta property="og:u
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:type" content="website">
 ${FAVICON}
+${links.join("\n")}
 </head>
 <body>
 ${body}
@@ -355,9 +440,10 @@ function gamePage(g, d, ce, bz, related, ctx) {
     : `${name} on Roblox: live player count (${fmtN(g.playerCount)} playing now), rating, and code status — checked daily.`;
 
   const stat = (label, value) => `<div class="stat"><div class="v">${value}</div><div class="l">${label}</div></div>`;
+  const IC_THUMB = '<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:-1px"><path d="M2 20h3V9H2v11zM22 10c0-1.1-.9-2-2-2h-5.2l.9-4.3v-.3c0-.4-.2-.8-.4-1L14.2 1 8.6 6.6c-.4.3-.6.8-.6 1.4v10c0 1.1.9 2 2 2h7c.8 0 1.5-.5 1.8-1.2l2.1-5.5c.1-.2.1-.5.1-.7v-2.6z"/></svg>';
   let stats = stat("Playing now", fmtN(g.playerCount));
   if (d.visits) stats += stat("Total visits", fmtN(d.visits));
-  if (pct !== null) stats += stat("Rating", "👍 " + pct + "%");
+  if (pct !== null) stats += stat("Rating", IC_THUMB + " " + pct + "%");
   if (bz) {
     const p = Math.round((bz.m - 1) * 100);
     stats += stat("Search trend (24h)", p >= 15 ? "▲ +" + p + "%" : p <= -15 ? "▼ " + p + "%" : "≈ flat");
@@ -395,10 +481,25 @@ function gamePage(g, d, ce, bz, related, ctx) {
   if (live) {
     ld.push({
       "@context": "https://schema.org", "@type": "FAQPage",
-      mainEntity: [{
-        "@type": "Question", name: `What are the working ${name} codes right now?`,
-        acceptedAnswer: { "@type": "Answer", text: ce.codes.map(x => `${x.c} (${x.r})`).join(", ") + `. Checked ${ctx.updated}.` }
-      }]
+      mainEntity: [
+        {
+          "@type": "Question", name: `What are the working ${name} codes right now?`,
+          acceptedAnswer: { "@type": "Answer", text: ce.codes.map(x => `${x.c} (${x.r})`).join(", ") + `. Checked ${ctx.updated}.` }
+        },
+        ...(ce.expired?.length ? [{
+          "@type": "Question", name: `Which ${name} codes have expired?`,
+          acceptedAnswer: { "@type": "Answer", text: `These no longer work: ${ce.expired.join(", ")}.` }
+        }] : [])
+      ]
+    });
+  }
+  if (SITE_BASE) {
+    ld.push({
+      "@context": "https://schema.org", "@type": "BreadcrumbList",
+      itemListElement: [
+        { "@type": "ListItem", position: 1, name: "Blox Radar", item: SITE_BASE + "/" },
+        { "@type": "ListItem", position: 2, name, item: canonical }
+      ]
     });
   }
 
@@ -415,25 +516,36 @@ ${canonical ? `<link rel="canonical" href="${canonical}">` : ""}
 ${icon ? `<meta property="og:image" content="${icon}">` : ""}
 <meta property="og:type" content="website">
 ${FAVICON}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>
 <style>
-:root{--bg:#eef1f6;--surface:#fff;--surface-2:#e4e9f1;--ink:#1b2534;--ink-2:#55617a;--ink-3:#8b95ab;--line:#d7dde8;--accent:#d92d20;--accent-ink:#fff;--live:#12805c;--live-bg:#d9f0e5;--code-bg:#1b2534;--code-ink:#aef2d0;--shadow:0 1px 2px rgba(16,24,40,.06),0 4px 14px rgba(16,24,40,.05)}
+:root{--bg:#eef1f6;--surface:#fff;--surface-2:#e4e9f1;--ink:#1b2534;--ink-2:#55617a;--ink-3:#8b95ab;--line:#d7dde8;--accent:#d92d20;--accent-ink:#fff;--live:#12805c;--live-bg:#d9f0e5;--code-bg:#1b2534;--code-ink:#aef2d0;--shadow:0 1px 2px rgba(16,24,40,.06),0 4px 14px rgba(16,24,40,.05);--display:"Bricolage Grotesque","Segoe UI","Pretendard Variable",Pretendard,sans-serif}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12161d;--surface:#1a2029;--surface-2:#232b37;--ink:#e9edf4;--ink-2:#a6b0c3;--ink-3:#6d7789;--line:#2b3442;--accent:#f0483b;--live:#4fd6a2;--live-bg:#17352b;--code-bg:#0c1117;--code-ink:#8ff0c0;--shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3)}}
 :root[data-theme="dark"]{--bg:#12161d;--surface:#1a2029;--surface-2:#232b37;--ink:#e9edf4;--ink-2:#a6b0c3;--ink-3:#6d7789;--line:#2b3442;--accent:#f0483b;--live:#4fd6a2;--live-bg:#17352b;--code-bg:#0c1117;--code-ink:#8ff0c0;--shadow:0 1px 2px rgba(0,0,0,.4),0 4px 14px rgba(0,0,0,.3)}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Pretendard Variable",Pretendard,"Apple SD Gothic Neo",sans-serif;line-height:1.55}
+*{box-sizing:border-box}
+html{scrollbar-width:thin;scrollbar-color:var(--ink-3) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:8px;border:2px solid var(--bg)}
+::-webkit-scrollbar-thumb:hover{background:var(--ink-3)}
+::selection{background:var(--accent);color:var(--accent-ink)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Segoe UI","Pretendard Variable",Pretendard,"Apple SD Gothic Neo",sans-serif;line-height:1.55}
 .wrap{max-width:760px;margin:0 auto;padding:20px 16px 60px}
 .top{display:flex;align-items:center;gap:10px;margin-bottom:22px}
-.top a{display:flex;align-items:center;gap:10px;color:inherit;text-decoration:none;font-weight:900;font-size:17px}
-.logo-block{width:34px;height:34px;border-radius:9px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-weight:900;font-size:17px;box-shadow:var(--shadow)}
+.top a{display:flex;align-items:center;gap:11px;color:inherit;text-decoration:none;font-family:var(--display);font-weight:800;font-size:18px;letter-spacing:-.02em}
+.logo-block{width:36px;height:36px;border-radius:10px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;box-shadow:var(--shadow)}
+.logo-block svg{display:block}
 .hero{display:flex;gap:16px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:var(--shadow);padding:18px}
-.hero img{width:88px;height:88px;border-radius:14px;background:var(--surface-2)}
-h1{margin:0;font-size:24px;font-weight:900;letter-spacing:-.02em;text-wrap:balance}
+.hero img{width:88px;height:88px;border-radius:14px;background:var(--surface-2);flex-shrink:0}
+h1{margin:0;font-family:var(--display);font-size:24px;font-weight:800;letter-spacing:-.02em;text-wrap:balance}
 .kn{margin:2px 0 0;color:var(--ink-2);font-size:14px}
 .meta{margin:4px 0 0;color:var(--ink-3);font-size:13px}
 .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:14px 0}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
-.stat .v{font-weight:900;font-size:18px;font-variant-numeric:tabular-nums}
+.stat .v{font-family:var(--display);font-weight:800;font-size:19px;font-variant-numeric:tabular-nums}
 .stat .l{font-size:11.5px;color:var(--ink-3);margin-top:1px}
+h2{font-family:var(--display)}
 .actions{display:flex;gap:8px;margin:6px 0 8px}
 .btn-play{background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:14px;padding:9px 18px;border-radius:9px;text-decoration:none}
 h2{font-size:18px;font-weight:900;letter-spacing:-.01em;margin:26px 0 10px}
@@ -462,7 +574,7 @@ a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-off
 </head>
 <body>
 <div class="wrap">
-  <div class="top"><a href="../../"><span class="logo-block">B</span>Blox Radar</a></div>
+  <div class="top"><a href="../../"><span class="logo-block" aria-hidden="true"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity=".45"/><circle cx="12" cy="12" r="5" opacity=".7"/><circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/><path d="M12 12L18.5 5.5"/><circle cx="16.4" cy="9" r="1.4" fill="currentColor" stroke="none"/></svg></span>Blox Radar</a></div>
   <div class="hero">
     ${icon ? `<img src="${icon}" alt="${esc(name)} icon">` : ""}
     <div>

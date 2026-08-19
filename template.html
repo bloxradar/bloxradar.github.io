@@ -1,4 +1,7 @@
 <title>Blox Radar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&display=swap">
 <style>
   :root {
     --bg: #eef1f6;
@@ -16,6 +19,7 @@
     --code-bg: #1b2534;
     --code-ink: #aef2d0;
     --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 4px 14px rgba(16, 24, 40, .05);
+    --display: "Bricolage Grotesque", "Segoe UI", "Pretendard Variable", Pretendard, sans-serif;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
@@ -55,6 +59,11 @@
   }
 
   * { box-sizing: border-box; }
+  html { scrollbar-width: thin; scrollbar-color: var(--ink-3) transparent; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; border: 2px solid var(--bg); }
+  ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+  ::selection { background: var(--accent); color: var(--accent-ink); }
   body {
     margin: 0;
     background: var(--bg);
@@ -63,23 +72,33 @@
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 80px; }
+  .wrap { max-width: 880px; margin: 0 auto; padding: 24px 16px 60px; }
+  svg.ic { display: inline-block; vertical-align: -2px; }
 
   /* ---------- header ---------- */
-  header.site { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 20px; padding: 16px 0 20px; }
-  .logo { display: flex; align-items: center; gap: 12px; }
-  .logo-block {
-    width: 44px; height: 44px; border-radius: 10px;
+  header.site { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 20px; padding: 14px 0 22px; }
+  .logo { display: flex; align-items: center; gap: 13px; color: inherit; text-decoration: none; }
+  .mark {
+    width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
     background: var(--accent); color: var(--accent-ink);
     display: grid; place-items: center;
-    font-weight: 900; font-size: 22px;
     box-shadow: var(--shadow);
   }
-  .logo h1 { margin: 0; font-size: 26px; font-weight: 900; letter-spacing: -.02em; }
-  .logo p { margin: 2px 0 0; font-size: 13px; color: var(--ink-2); }
-  .stamp { margin-left: auto; text-align: right; font-size: 12px; color: var(--ink-3); }
-  .stamp b { color: var(--ink-2); font-weight: 600; }
-  .stamp .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--live); margin-right: 5px; }
+  .mark svg { display: block; }
+  .mark .needle { transform-origin: 12px 12px; animation: sweep 6s linear infinite; }
+  @keyframes sweep { to { transform: rotate(360deg); } }
+  .logo h1 {
+    margin: 0; font-family: var(--display); font-size: 27px; font-weight: 800;
+    letter-spacing: -.02em; line-height: 1.1;
+  }
+  .logo p { margin: 3px 0 0; font-size: 13px; color: var(--ink-2); }
+  .pulse { margin-left: auto; text-align: right; font-size: 12.5px; color: var(--ink-3); }
+  .pulse b { color: var(--ink-2); font-weight: 600; font-variant-numeric: tabular-nums; }
+  .pulse .dot {
+    display: inline-block; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--live); margin-right: 6px;
+    box-shadow: 0 0 0 3px var(--live-bg);
+  }
 
   /* ---------- toolbar: tabs + search ---------- */
   .toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 8px 0 14px; }
@@ -88,17 +107,22 @@
     appearance: none; border: 1px solid var(--line); background: var(--surface);
     color: var(--ink-2); font: inherit; font-weight: 700; font-size: 14px;
     padding: 8px 16px; border-radius: 999px; cursor: pointer;
+    transition: color .15s ease, border-color .15s ease;
   }
-  .tab:hover { color: var(--ink); }
-  .tab:focus-visible, .row-head:focus-visible, .star:focus-visible, .codechip:focus-visible, a:focus-visible, .search input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .tab:hover { color: var(--ink); border-color: var(--ink-3); }
+  :is(.tab, .row-head, .star, .codechip, a, .search input):focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+  .tab:focus-visible { border-radius: 999px; }
   .tab[aria-selected="true"] { background: var(--ink); border-color: var(--ink); color: var(--bg); }
-  .tab .n { font-weight: 400; opacity: .65; margin-left: 4px; font-size: 12px; }
-  .search { flex: 1; min-width: 180px; max-width: 280px; margin-left: auto; }
+  .tab .n { font-weight: 400; opacity: .65; margin-left: 4px; font-size: 12px; font-variant-numeric: tabular-nums; }
+  .search { flex: 1; min-width: 180px; max-width: 280px; margin-left: auto; position: relative; }
+  .search svg { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--ink-3); pointer-events: none; }
   .search input {
     width: 100%; font: inherit; font-size: 14px; color: var(--ink);
     background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
-    padding: 8px 16px; outline: none;
+    padding: 8px 16px 8px 34px; outline: none; caret-color: var(--accent);
+    transition: border-color .15s ease;
   }
+  .search input:hover, .search input:focus { border-color: var(--ink-3); }
   .search input::placeholder { color: var(--ink-3); }
 
   #status { font-size: 12px; color: var(--ink-3); margin: 0 0 10px; }
@@ -108,7 +132,9 @@
   li.row {
     background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
     box-shadow: var(--shadow); overflow: hidden;
+    transition: border-color .15s ease;
   }
+  li.row:hover, li.row.open { border-color: var(--ink-3); }
   li.empty {
     text-align: center; padding: 32px 16px; color: var(--ink-3); font-size: 14px;
     background: var(--surface); border: 1px dashed var(--line); border-radius: 14px;
@@ -121,54 +147,67 @@
   }
   .star {
     appearance: none; background: none; border: none; cursor: pointer;
-    font-size: 17px; line-height: 1; padding: 4px 2px;
-    color: var(--ink-3); opacity: .4;
+    padding: 4px 2px; line-height: 0;
+    color: var(--ink-3); opacity: .45;
+    transition: opacity .15s ease, color .15s ease, transform .15s ease;
   }
-  .star:hover { opacity: .8; }
+  .star:hover { opacity: .9; transform: scale(1.12); }
   .star.on { color: var(--star); opacity: 1; }
-  .rank { font-size: 17px; font-weight: 900; text-align: center; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+  .star svg .fill { fill: none; }
+  .star.on svg .fill { fill: currentColor; }
+  .rank {
+    font-family: var(--display); font-size: 17px; font-weight: 800; text-align: center;
+    color: var(--ink-3); font-variant-numeric: tabular-nums;
+  }
   li.row:nth-child(-n+3) .rank.top { color: var(--accent); }
   .row-head img { width: 56px; height: 56px; border-radius: 12px; display: block; background: var(--surface-2); }
   .g-main { min-width: 0; }
   .g-name { font-weight: 800; font-size: 15px; letter-spacing: -.01em; }
   .codes-flag {
-    display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .04em;
+    display: inline-block; font-size: 10.5px; font-weight: 800; letter-spacing: .05em;
     color: var(--live); background: var(--live-bg); border-radius: 6px;
-    padding: 1px 6px; margin-left: 7px; vertical-align: 2px;
+    padding: 1px 7px; margin-left: 7px; vertical-align: 2px;
+    font-variant-numeric: tabular-nums;
   }
   .g-sub { font-size: 12px; color: var(--ink-3); margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .g-sub .genre { color: var(--ink-2); font-weight: 600; }
   .g-stats { text-align: right; font-variant-numeric: tabular-nums; }
-  .g-playing { font-weight: 800; font-size: 15px; }
-  .g-playing .unit { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+  .g-playing { font-family: var(--display); font-weight: 800; font-size: 15.5px; }
+  .g-playing .unit { font-family: inherit; font-size: 12px; font-weight: 600; color: var(--ink-2); }
   .g-rating { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
   .g-rating.hot { color: var(--live); font-weight: 600; }
   .g-buzz { font-size: 11px; font-weight: 700; color: var(--ink-3); margin-top: 2px; }
   .g-buzz.up { color: var(--live); }
   .g-buzz.down { color: var(--accent); }
-  .chev { color: var(--ink-3); font-size: 11px; text-align: center; transition: transform .15s ease; }
+  .chev { color: var(--ink-3); line-height: 0; text-align: center; transition: transform .22s cubic-bezier(.22, 1, .36, 1); }
   li.open .chev { transform: rotate(180deg); }
-  @media (prefers-reduced-motion: reduce) { .chev, #toast { transition: none; } }
 
   /* ---------- expanded panel ---------- */
   .row-panel {
-    display: none; flex-direction: column; gap: 10px;
-    border-top: 1px dashed var(--line);
-    padding: 14px 16px 16px;
+    display: grid; grid-template-rows: 0fr; opacity: 0;
+    transition: grid-template-rows .28s cubic-bezier(.22, 1, .36, 1), opacity .2s ease;
   }
-  li.open .row-panel { display: flex; }
+  li.open .row-panel { grid-template-rows: 1fr; opacity: 1; }
+  .panel-inner {
+    overflow: hidden; min-height: 0;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  li.open .panel-inner { border-top: 1px dashed var(--line); padding: 14px 16px 16px; }
   .panel-actions { display: flex; gap: 8px; flex-wrap: wrap; }
   .btn-play {
     background: var(--accent); color: var(--accent-ink);
     font-weight: 700; font-size: 13px; padding: 7px 14px;
     border-radius: 8px; text-decoration: none;
+    transition: filter .15s ease;
   }
+  .btn-play:hover { filter: brightness(1.08); }
   .btn-page {
     border: 1px solid var(--line); color: var(--ink-2);
     font-weight: 700; font-size: 13px; padding: 7px 14px;
     border-radius: 8px; text-decoration: none;
+    transition: color .15s ease, border-color .15s ease;
   }
-  .btn-page:hover { color: var(--ink); }
+  .btn-page:hover { color: var(--ink); border-color: var(--ink-3); }
   .codelist { display: flex; flex-direction: column; gap: 6px; }
   .codeline { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
   .codechip {
@@ -177,8 +216,9 @@
     font-size: 13.5px; font-weight: 600; letter-spacing: .03em;
     background: var(--code-bg); color: var(--code-ink);
     padding: 6px 12px; border-radius: 8px;
+    transition: filter .15s ease;
   }
-  .codechip:hover { filter: brightness(1.2); }
+  .codechip:hover { filter: brightness(1.25); }
   .codechip.dead {
     background: transparent; border: 1px dashed var(--line); color: var(--ink-3);
     text-decoration: line-through; cursor: default; padding: 5px 11px; font-size: 12.5px;
@@ -188,15 +228,23 @@
   details.exp summary:hover { color: var(--ink-2); }
   details.exp .explist { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
   .codereward { font-size: 13px; color: var(--ink-2); }
-  .how { margin: 0; font-size: 12.5px; color: var(--ink-3); }
+  .how { margin: 0; font-size: 12.5px; color: var(--ink-3); max-width: 64ch; }
   .how b { color: var(--ink-2); font-weight: 600; }
   .src { margin: 0; font-size: 12px; color: var(--ink-3); }
   .src a { color: var(--ink-2); }
 
   /* ---------- footer ---------- */
-  .about { margin-top: 44px; border-top: 1px solid var(--line); padding-top: 20px; font-size: 12.5px; color: var(--ink-3); max-width: 68ch; }
-  .about p { margin: 0 0 8px; }
-  .about b { color: var(--ink-2); font-weight: 600; }
+  footer.about { margin-top: 48px; border-top: 1px solid var(--line); padding-top: 22px; font-size: 12.5px; color: var(--ink-3); }
+  footer.about .cols { display: flex; flex-wrap: wrap; gap: 18px 48px; }
+  footer.about .col { max-width: 40ch; flex: 1; min-width: 240px; }
+  footer.about h3 {
+    margin: 0 0 6px; font-family: var(--display); font-size: 13.5px; font-weight: 700;
+    color: var(--ink-2); letter-spacing: 0;
+  }
+  footer.about p { margin: 0 0 8px; }
+  footer.about b { color: var(--ink-2); font-weight: 600; }
+  footer.about a { color: var(--ink-2); }
+  footer.about .fine { margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--line); font-size: 11.5px; }
 
   /* ---------- toast ---------- */
   #toast {
@@ -207,35 +255,49 @@
   }
   #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
+  @media (prefers-reduced-motion: reduce) {
+    .mark .needle { animation: none; }
+    .chev, .row-panel, .star, #toast, .tab, .search input, li.row { transition: none; }
+  }
+
   @media (max-width: 560px) {
     .row-head { grid-template-columns: 20px 24px 44px 1fr auto 12px; gap: 7px; padding: 8px 10px 8px 6px; }
     .row-head img { width: 44px; height: 44px; border-radius: 10px; }
     .g-name { font-size: 14px; }
     .rank { font-size: 15px; }
-    .stamp { margin-left: 0; text-align: left; }
+    .pulse { margin-left: 0; text-align: left; }
     .search { max-width: none; }
-    .row-panel { padding: 12px 12px 14px; }
+    li.open .panel-inner { padding: 12px 12px 14px; }
   }
 </style>
 
 <div class="wrap">
   <header class="site">
-    <div class="logo">
-      <div class="logo-block">B</div>
-      <div>
+    <a class="logo" href="./">
+      <span class="mark" aria-hidden="true">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+          <circle cx="12" cy="12" r="9" opacity=".45"/>
+          <circle cx="12" cy="12" r="5" opacity=".7"/>
+          <circle cx="12" cy="12" r="1.2" fill="currentColor" stroke="none"/>
+          <g class="needle"><path d="M12 12L18.5 5.5"/></g>
+          <circle cx="16.4" cy="9" r="1.4" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+      <span>
         <h1>Blox Radar</h1>
         <p>Roblox trending charts · working codes</p>
-      </div>
-    </div>
-    <div class="stamp">
-      <span class="dot"></span>Data from <b id="stamp-time"></b><br>
-      Global · PC charts · refreshes on republish
+      </span>
+    </a>
+    <div class="pulse">
+      <span class="dot"></span><span id="meta-line"></span><br>
+      <span id="meta-sub"></span>
     </div>
   </header>
 
   <div class="toolbar">
     <nav class="tabs" role="tablist" aria-label="Chart type" id="tabs"></nav>
     <div class="search">
+      <svg class="ic" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.8-3.8"/></svg>
       <input id="q" type="search" placeholder="Search games…" aria-label="Search games">
     </div>
   </div>
@@ -243,22 +305,59 @@
   <p id="status" hidden></p>
   <ol class="chart" id="chart"></ol>
 
-  <section class="about">
-    <p><b>Tap any game</b> to expand it — you'll find its working codes (tap a code to copy), how to redeem them, and a link to play. The ★ saves a game to your Favorites tab; favorites are stored in your browser only.</p>
-    <p><b>How this page updates:</b> chart data (rankings, live player counts, ratings) comes from every discovery row Roblox exposes — the five main charts plus genre trending, top earning, top rated, and most popular rows; games beyond the main charts (down to 500 concurrent players) feed the All Games tab and search. Codes are gathered from gaming outlets that verify them. Everything is baked in at publish time — the page refreshes each time it is republished.</p>
-    <p><b>Search Buzz</b> is measured from Google Trends: for each top chart game, its search interest over the last 24 hours is compared with its own 7-day average, so the numbers show momentum on the wider internet — not just inside Roblox.</p>
-    <p><b>Watchlist:</b> games that never reach the discovery charts can still be tracked by hand — they show up in All Games, search, and Favorites like any other game. Ask for a game to be added and it stays tracked from the next refresh on.</p>
-    <p><b>If a code doesn't work:</b> codes are often case-sensitive and can expire within hours. Paste them exactly into the game's code box; if it still fails, check the game's official Discord.</p>
-    <p>Unofficial fan page. Not affiliated with Roblox Corporation; game names and icons belong to their respective creators.</p>
-  </section>
+  <footer class="about">
+    <div class="cols">
+      <div class="col">
+        <h3>How it works</h3>
+        <p><b>Tap any game</b> to see its working codes (tap a code to copy), how to redeem them, and a play link. The star saves a game to Favorites — stored in your browser only.</p>
+        <p>Charts come from every discovery row Roblox exposes — the five main charts plus genre trending, top earning, top rated, and most popular (games down to 500 players feed All Games and search).</p>
+      </div>
+      <div class="col">
+        <h3>Codes &amp; freshness</h3>
+        <p>Codes are gathered from outlets that verify them and re-checked daily. Codes are often case-sensitive and can expire within hours — if one fails, check the game's official Discord.</p>
+        <p><b>Search Buzz</b> compares each top game's Google search interest over the last 24 hours with its own 7-day average — momentum on the wider internet, not just inside Roblox.</p>
+      </div>
+    </div>
+    <p class="fine"><span id="browse-all"></span>Unofficial fan site — not affiliated with Roblox Corporation. Game names and icons belong to their respective creators. Data: Roblox public API · Google Trends.</p>
+  </footer>
 </div>
 
 <div id="toast" role="status">Copied</div>
 
 <script>
   const DATA = /*__DATA__*/;
-
   const CODES = /*__CODES__*/;
+
+  const IC = {
+    star: '<svg class="ic" width="15" height="15" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" fill="none"><path class="fill" d="M12 3l2.7 5.8 6.3.7-4.7 4.3 1.3 6.2L12 16.9 6.4 20l1.3-6.2L3 9.5l6.3-.7z"/></svg>',
+    chev: '<svg class="ic" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>',
+    up: '<svg class="ic" width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 5l8 13H4z"/></svg>',
+    down: '<svg class="ic" width="9" height="9" viewBox="0 0 24 24" fill="currentColor"><path d="M12 19L4 6h16z"/></svg>',
+    thumb: '<svg class="ic" width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M2 20h3V9H2v11zM22 10c0-1.1-.9-2-2-2h-5.2l.9-4.3v-.3c0-.4-.2-.8-.4-1L14.2 1 8.6 6.6c-.4.3-.6.8-.6 1.4v10c0 1.1.9 2 2 2h7c.8 0 1.5-.5 1.8-1.2l2.1-5.5c.1-.2.1-.5.1-.7v-2.6z"/></svg>'
+  };
+
+  const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
+  const COMBINING_MARKS = new RegExp("[\\u0300-\\u036f]", "g");
+  /* NFKD folds styled Latin & splits accents; NFC recomposes Hangul */
+  const norm = s => String(s).normalize("NFKD").replace(COMBINING_MARKS, "").normalize("NFC")
+    .toLowerCase().replace(/[^a-z0-9가-힣]+/g, " ").trim();
+  const fmtN = n => {
+    if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
+    if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
+    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "K";
+    return String(n);
+  };
+  const gameUrl = g => "https://www.roblox.com/games/" + g.place;
+
+  /* single-word matches must equal the whole normalized game name so
+     "RIVALS" doesn't hit "Blue Lock: Rivals" */
+  const codeEntry = name => {
+    const n = norm(name);
+    return CODES.find(c => {
+      const m = norm(c.match);
+      return m.includes(" ") ? (" " + n + " ").includes(" " + m + " ") : n === m;
+    });
+  };
 
   const SORTS = [
     { key: "trending", label: "Trending" },
@@ -270,39 +369,12 @@
   ];
   const BUZZ = DATA.buzz || {};
 
-  const esc = s => String(s).replace(/[&<>"]/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[m]));
-  /* fold styled unicode (ＦＵＬＬ, 𝐁𝐈𝐆), strip accents (piñata→pinata) and
-     punctuation, keep Hangul so Korean titles are searchable */
-  const COMBINING_MARKS = new RegExp("[\\u0300-\\u036f]", "g");
-  /* NFKD folds styled Latin & splits accents; NFC then recomposes Hangul
-     syllables that NFKD broke into jamo */
-  const norm = s => String(s).normalize("NFKD").replace(COMBINING_MARKS, "").normalize("NFC")
-    .toLowerCase().replace(/[^a-z0-9가-힣]+/g, " ").trim();
-  const fmtN = n => {
-    if (n >= 1e9) return (n / 1e9).toFixed(1).replace(/\.0$/, "") + "B";
-    if (n >= 1e6) return (n / 1e6).toFixed(1).replace(/\.0$/, "") + "M";
-    if (n >= 1e3) return (n / 1e3).toFixed(1).replace(/\.0$/, "") + "K";
-    return String(n);
-  };
-  const gameUrl = g => "https://www.roblox.com/games/" + g.place;
-  /* single-word matches must equal the whole (normalized) game name so
-     "RIVALS" doesn't hit "Blue Lock: Rivals"; multi-word matches need a
-     word-boundary substring */
-  const codeEntry = name => {
-    const n = norm(name);
-    return CODES.find(c => {
-      const m = norm(c.match);
-      return m.includes(" ") ? (" " + n + " ").includes(" " + m + " ") : n === m;
-    });
-  };
-
   /* favorites (persisted in the viewer's browser when allowed) */
   let favs = new Set();
   try { favs = new Set(JSON.parse(localStorage.getItem("bloxradar-favs") || "[]")); } catch (_) {}
   const saveFavs = () => { try { localStorage.setItem("bloxradar-favs", JSON.stringify([...favs])); } catch (_) {} };
 
-  /* unified game index (deduped across every collected chart, incl. Fun with
-     Friends and Top Revisited, which have no tab of their own) */
+  /* unified game index across every collected chart */
   const ALL = new Map();
   Object.keys(DATA.sorts).forEach(k =>
     DATA.sorts[k].forEach(g => { if (!ALL.has(String(g.u))) ALL.set(String(g.u), g); }));
@@ -312,8 +384,8 @@
     "2644656496": "haze piece hazepiece"
   };
 
-  /* search index: English name + Korean localized name + aliases + creator +
-     genre, plus a no-space form of the names so "bloxfruits" matches too */
+  /* search index: English + Korean names + aliases + creator + genre, plus a
+     no-space form of the names so "bloxfruits" matches too */
   const SIDX = new Map();
   ALL.forEach((g, id) => {
     const d = DATA.details[id] || {};
@@ -324,8 +396,27 @@
 
   let current = "trending", query = "";
 
-  document.getElementById("stamp-time").textContent =
-    new Intl.DateTimeFormat("en-US", { dateStyle: "medium", timeStyle: "short" }).format(new Date(DATA.fetchedAt));
+  /* header meta: pool size, live code count, relative freshness */
+  const liveCodeCount = CODES.filter(c => c.status === "live")
+    .reduce((a, c) => a + c.codes.length, 0);
+  const rel = iso => {
+    const m = Math.round((Date.now() - new Date(iso).getTime()) / 60000);
+    if (m < 2) return "just now";
+    if (m < 60) return m + " min ago";
+    if (m < 48 * 60) return Math.round(m / 60) + " h ago";
+    return Math.round(m / 1440) + " d ago";
+  };
+  document.getElementById("meta-line").innerHTML =
+    "<b>" + ALL.size + "</b> games · <b>" + liveCodeCount + "</b> working codes";
+  const metaSub = document.getElementById("meta-sub");
+  metaSub.textContent = "updated " + rel(DATA.fetchedAt);
+  metaSub.title = new Date(DATA.fetchedAt).toLocaleString();
+
+  /* the genre index only exists in the hosted build */
+  if (Object.keys(DATA.slugs || {}).length) {
+    document.getElementById("browse-all").innerHTML =
+      '<a href="games/">Browse all games by genre</a> · ';
+  }
 
   /* tabs */
   const tabsEl = document.getElementById("tabs");
@@ -353,8 +444,8 @@
   const buzzPct = m => Math.round((m - 1) * 100);
   const buzzPill = m => {
     const pct = buzzPct(m);
-    if (pct >= 15) return '<div class="g-buzz up">▲ +' + pct + "% search</div>";
-    if (pct <= -15) return '<div class="g-buzz down">▼ ' + pct + "% search</div>";
+    if (pct >= 15) return '<div class="g-buzz up">' + IC.up + " +" + pct + "% search</div>";
+    if (pct <= -15) return '<div class="g-buzz down">' + IC.down + " " + pct + "% search</div>";
     return '<div class="g-buzz">≈ search flat</div>';
   };
 
@@ -390,7 +481,7 @@
       inner += '<p class="src">Sources: ' + ce.src.map(s =>
         '<a href="' + s[1] + '" target="_blank" rel="noopener">' + esc(s[0]) + "</a>").join(" · ") + "</p>";
     }
-    return '<div class="row-panel">' + inner + "</div>";
+    return '<div class="row-panel"><div class="panel-inner">' + inner + "</div></div>";
   }
 
   function rowHtml(g, i, showRank) {
@@ -404,18 +495,18 @@
     const isFav = favs.has(id);
     return '<li class="row" data-u="' + id + '">'
       + '<div class="row-head" role="button" tabindex="0" aria-expanded="false">'
-      + '<button class="star' + (isFav ? " on" : "") + '" data-star="' + id + '" aria-pressed="' + isFav + '" aria-label="Toggle favorite">★</button>'
+      + '<button class="star' + (isFav ? " on" : "") + '" data-star="' + id + '" aria-pressed="' + isFav + '" aria-label="Toggle favorite">' + IC.star + "</button>"
       + '<div class="rank' + (showRank ? " top" : "") + '">' + (showRank ? i + 1 : "·") + "</div>"
       + (icon ? '<img src="' + icon + '" alt="" loading="lazy">' : "<div></div>")
       + '<div class="g-main"><div class="g-name">' + esc(g.name)
-      + (live ? '<span class="codes-flag">CODES</span>' : "") + "</div>"
+      + (live ? '<span class="codes-flag">' + ce.codes.length + " CODES</span>" : "") + "</div>"
       + '<div class="g-sub"><span class="genre">' + esc(g.genre || "Other") + "</span>"
       + (d.creator ? " · " + esc(d.creator) : "")
       + (d.visits ? " · " + fmtN(d.visits) + " visits" : "") + "</div></div>"
       + '<div class="g-stats"><div class="g-playing">' + fmtN(g.playing) + '<span class="unit"> playing</span></div>'
-      + (pct !== null ? '<div class="g-rating' + (pct >= 90 ? " hot" : "") + '">👍 ' + pct + "%</div>" : "")
+      + (pct !== null ? '<div class="g-rating' + (pct >= 90 ? " hot" : "") + '">' + IC.thumb + " " + pct + "%</div>" : "")
       + (BUZZ[g.u] ? buzzPill(BUZZ[g.u].m) : "")
-      + '</div><div class="chev">▾</div></div>'
+      + '</div><div class="chev">' + IC.chev + "</div></div>"
       + panelHtml(g) + "</li>";
   }
 
@@ -450,8 +541,6 @@
     const st = document.getElementById("status");
     st.textContent = status; st.hidden = !status;
     const ol = document.getElementById("chart");
-    /* when searching, always offer Roblox's own full search as a way out —
-       this page only tracks the games on the discovery charts */
     const more = query
       ? '<li class="more">Only the ' + ALL.size + ' games on Roblox’s discovery charts are tracked here. '
         + '<a href="https://www.roblox.com/search/games?keyword=' + encodeURIComponent(query) + '" target="_blank" rel="noopener">Search all of Roblox for “' + esc(query) + '” ↗</a></li>'
@@ -459,7 +548,7 @@
     if (!list.length) {
       ol.innerHTML = '<li class="empty">' + (query
         ? "No games match “" + esc(query) + "” on the charts."
-        : "No favorites yet — tap the ★ on any game to save it here.") + "</li>" + more;
+        : "No favorites yet — tap the star on any game to save it here.") + "</li>" + more;
       return;
     }
     ol.innerHTML = list.map((g, i) => rowHtml(g, i, showRank)).join("") + more;
