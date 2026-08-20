@@ -166,10 +166,6 @@
         "r": "5 Race Spins"
       },
       {
-        "c": "PHANTOMSHIP",
-        "r": "5 Race Spins"
-      },
-      {
         "c": "SPIDERCYBORG",
         "r": "5 Race Spins"
       },
@@ -179,10 +175,6 @@
       },
       {
         "c": "DRAGONUPD",
-        "r": "5 Race Spins"
-      },
-      {
-        "c": "OKUCHI",
         "r": "5 Race Spins"
       },
       {
@@ -198,15 +190,58 @@
         "r": "x2 EXP (1 hour)"
       },
       {
-        "c": "PATCH",
-        "r": "25 Gems + x2 EXP (15 min)"
+        "c": "RELEASE",
+        "r": "x2 EXP (1 hour)"
       },
       {
         "c": "STATREFUND",
         "r": "1 free stat refund"
+      },
+      {
+        "c": "FREECASH",
+        "r": "50,000 Cash"
+      },
+      {
+        "c": "FREEGEMS",
+        "r": "50 Gems"
+      },
+      {
+        "c": "SUBSCRIBETOHAZEYT",
+        "r": "50,000 Cash"
+      },
+      {
+        "c": "GROUPONLY",
+        "r": "10,000 Cash"
+      },
+      {
+        "c": "Sub2XenoTy",
+        "r": "x2 EXP (20 min)"
+      },
+      {
+        "c": "Sub2CaptainMaui",
+        "r": "x2 EXP (20 min)"
+      },
+      {
+        "c": "Sub2Nikkolapz",
+        "r": "x2 EXP (20 min)"
+      },
+      {
+        "c": "Sub2BadiTubes",
+        "r": "x2 EXP (20 min)"
+      },
+      {
+        "c": "Sub2BrosSiam",
+        "r": "x2 EXP (20 min)"
+      },
+      {
+        "c": "Sub2BuilderboyTV",
+        "r": "x2 EXP (20 min)"
       }
     ],
     "expired": [
+      "PATCH",
+      "OKUCHI",
+      "PHANTOMSHIP",
       "GOGOGAGA",
       "LETSGET450K2024",
       "425KNEXTCODE123",
@@ -292,9 +327,24 @@
   },
   {
     "match": "Adopt Me",
-    "status": "none",
-    "note": "Promo codes were retired years ago. Event rewards now come through in-game updates only.",
-    "src": []
+    "status": "live",
+    "codes": [
+      {
+        "c": "PROUDFROG",
+        "r": "Proud Frog Sticker"
+      }
+    ],
+    "how": "From the Exit tunnel near Adoption Island, cross the 2 bridges to the building with a scale on the roof, talk to Agent Ruhi, then use the Kiosk inside to enter the code.",
+    "src": [
+      [
+        "Beebom",
+        "https://beebom.com/roblox-adopt-me-codes/"
+      ],
+      [
+        "Driffle",
+        "https://driffle.com/blog/all-adopt-me-codes/"
+      ]
+    ]
   },
   {
     "match": "Tower of Hell",
@@ -323,7 +373,31 @@
       {
         "c": "ICYFREEZE",
         "r": "IcyTea Freezer Skin"
+      },
+      {
+        "c": "FreezerMYW1F3L3FTM3",
+        "r": "The Garbage Bag Child Support"
+      },
+      {
+        "c": "W33KLICODE",
+        "r": "65 XP"
+      },
+      {
+        "c": "DERHAUSAUFGABE",
+        "r": "A New Stage"
+      },
+      {
+        "c": "69420",
+        "r": "First Vault Code"
+      },
+      {
+        "c": "5164627",
+        "r": "Second Vault Code"
       }
+    ],
+    "expired": [
+      "XPHAPPY3AST3R!",
+      "freemember"
     ],
     "how": "Open the <b>Chat</b> window (top-left corner), type the code exactly as shown (e.g. <b>/freemember</b> with the slash), and press Enter.",
     "src": [
@@ -383,10 +457,6 @@
         "r": "50 Cash + Thunder Egg"
       },
       {
-        "c": "40KCCU",
-        "r": "Blazing Egg"
-      },
-      {
         "c": "LETMECOOK",
         "r": "50 Cash + Thunder Egg + 30-min 2x Money buff"
       },
@@ -398,6 +468,9 @@
         "c": "WELCOME",
         "r": "50 Cash + Nest Egg"
       }
+    ],
+    "expired": [
+      "40KCCU"
     ],
     "how": "Click the ticket-shaped icon in the top-left of the screen → enter the code → Redeem.",
     "src": [
